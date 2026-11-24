@@ -1,0 +1,5 @@
+# Codex instructions for this repository
+
+Maintain the Limen Engineering Harness as a testable, vendor-neutral engineering practice. Apply the nine moments flexibly: Experience, Model, Imagine, Branch, Simulate, Integrate, Act, Encounter, Update. Use Yes-And as Receive, Build, Judge. Distinguish observed, inferred, proposed, unverified, verified; prefer tool-executed evidence over model assertions. Keep critical release approvals outside LLM prompts.
+
+When importing/updating these source skills, preserve each platform's packaging conventions and existing skill instructions. Never silently overwrite a local Microsoft Copilot prompt/skill; inspect and merge or retain both versions when different. Do not read private keys, credentials or secrets. Do not create remotes or push without a separate explicit user request. Run the Claude unit suite after changes and report actual results. Keep the two papers under docs/. Do not claim successful deployment in any agent host until independently observed.

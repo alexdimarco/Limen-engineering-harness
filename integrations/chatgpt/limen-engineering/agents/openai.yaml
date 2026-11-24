@@ -1,0 +1,4 @@
+interface:
+  display_name: "Limen Engineering"
+  short_description: "Evidence-led AI engineering with the Limen developmental loop"
+  default_prompt: "Use the Limen Engineering method to examine this engineering task. Separate assumptions, design branches, testable claims, independent evidence and corrections."
