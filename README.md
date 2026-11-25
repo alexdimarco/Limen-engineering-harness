@@ -28,11 +28,14 @@ risk tier, and keeps a case record in `.limen/` in your repository. The record h
 criticism, the decision, the output of every check it ran (with a SHA-256 digest), what was observed, and the
 corrections. Its `check` command says whether the record meets the minimum for its tier.
 
-- It runs only when you type it, and it adds no hooks.
-- It needs Python 3 and nothing else: standard library only, tested with 3.9.6.
+- The skill runs only when you type it.
+- From 0.2.0 the plugin also has an advisory hook. It does nothing until a repository keeps a Limen record
+  (`.limen/`). In such a repository it asks you before `git commit` while the case is not ready, saying what is
+  missing. It always asks before `git push` and other release commands.
+- It needs Python 3 and nothing else: standard library only, tested with 3.9.6 and 3.12.
 - Add `.limen/` to your `.gitignore` unless you mean to keep the records.
 - To stay on one release, add the marketplace at its tag:
-  `claude plugin marketplace add alexdimarco/Limen-engineering-harness#limen-engineering-v0.1.0`.
+  `claude plugin marketplace add alexdimarco/Limen-engineering-harness#limen-engineering-v0.2.0`.
 
 ## What is here
 
@@ -68,22 +71,18 @@ written collaboration between Alex DiMarco and several language models. The work
 
 ## What it is not
 
-- **Not a security control.** The starter's hook is an advisory prompt before `git commit`, `git push` and a few
-  deployment commands. It is easy to get around. The real gates (branch protection, required CI checks, approvals)
+- **Not a security control.** The hook (in the plugin and in the starter) is an advisory prompt before `git commit`,
+  `git push` and a few deployment commands. It is easy to get around. The real gates (branch protection, required CI checks, approvals)
   have to live outside the model.
 - **Not tamper-proof evidence.** The model that writes the records can also edit them. The digests catch accidental
   changes, not deliberate ones, and the records are not audit evidence.
 - **Not an approval.** "READY FOR REVIEW" means the record is complete for its tier. It does not mean the change is
   safe to release.
 
-## Known issues in 0.1
+## Changes
 
-These are in the starter's commit hook, which is why the plugin ships without it:
-
-- the reason it shows is empty when a case is not ready;
-- its unit test passes whether or not the tool is there;
-- the tool keeps records in the folder it runs from, while the hook checks the project root;
-- `git -C <folder> commit` is not caught.
+See [CHANGELOG.md](CHANGELOG.md). Version 0.2.0 fixed four problems in the commit hook found in review, and put the
+hook in the plugin.
 
 ## Run the tests
 
@@ -91,11 +90,11 @@ These are in the starter's commit hook, which is why the plugin ships without it
 python3 -m unittest discover -s integrations/claude-code/tests -v
 ```
 
-There are ten tests, covering:
+There are 22 tests, covering:
 
 - the case recorder;
-- the starter's hook;
-- the plugin's packaging, including a check that the plugin's `limen.py` stays identical to the starter's.
+- the hook, with one test for each problem fixed in 0.2.0;
+- the plugin's packaging, including checks that the plugin's `limen.py` and hook stay identical to the starter's.
 
 ## How this was made
 

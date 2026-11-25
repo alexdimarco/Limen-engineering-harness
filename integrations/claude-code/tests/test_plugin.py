@@ -18,6 +18,18 @@ class PluginPackagingTests(unittest.TestCase):
         self.assertEqual(digest(PLUGIN / 'tools' / 'limen.py'), digest(STARTER_TOOL),
                          'plugins/limen-engineering/tools/limen.py must stay a copy of the starter tool')
 
+    def test_plugin_hook_is_identical_to_starter_hook(self):
+        starter = REPO / 'integrations' / 'claude-code' / '.claude' / 'hooks' / 'pretool.py'
+        self.assertEqual(digest(PLUGIN / 'hooks' / 'pretool.py'), digest(starter),
+                         'plugins/limen-engineering/hooks/pretool.py must stay a copy of the starter hook')
+
+    def test_plugin_hook_runs_the_plugins_own_script(self):
+        hooks = json.loads((PLUGIN / 'hooks' / 'hooks.json').read_text(encoding='utf-8'))['hooks']
+        entries = [h for group in hooks['PreToolUse'] for h in group['hooks']]
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['command'], 'python3')
+        self.assertEqual(entries[0]['args'], ['${CLAUDE_PLUGIN_ROOT}/hooks/pretool.py'])
+
     def test_marketplace_entry_matches_plugin_manifest(self):
         market = json.loads((REPO / '.claude-plugin' / 'marketplace.json').read_text(encoding='utf-8'))
         manifest = json.loads((PLUGIN / '.claude-plugin' / 'plugin.json').read_text(encoding='utf-8'))

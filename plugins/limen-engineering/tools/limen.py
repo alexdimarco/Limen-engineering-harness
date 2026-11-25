@@ -17,7 +17,20 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 
-ROOT = Path.cwd()
+def find_root(start: Path) -> Path:
+    """Where the records live: the nearest of `start` and its parents holding `.limen/` or `.git`, else `start`.
+
+    So a case started from a subfolder is kept at the repository root, where the commit hook looks (0.2.0).
+    An older `.limen/` in a subfolder is still found first, so earlier records keep working.
+    """
+    start = start.resolve()
+    for folder in (start, *start.parents):
+        if (folder / '.limen').is_dir() or (folder / '.git').exists():
+            return folder
+    return start
+
+
+ROOT = find_root(Path.cwd())
 DB = ROOT / '.limen'
 MOMENTS = ['Experience', 'Model', 'Imagine', 'Branch', 'Simulate', 'Integrate', 'Act', 'Encounter', 'Update']
 
@@ -170,7 +183,7 @@ def run_cli(args):
             raise ValueError('Supply command after --, e.g. run-check --label unit -- python3 -m unittest')
         proof_id = item_id(case, 'evidence', 'EV')
         try:
-            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
+            result = subprocess.run(command, cwd=Path.cwd(), capture_output=True, text=True,
                                     errors='replace', timeout=args.timeout, check=False, shell=False)
             status = result.returncode
             output = result.stdout + ('\n[stderr]\n' + result.stderr if result.stderr else '')
@@ -182,8 +195,8 @@ def run_cli(args):
             output = f'Cannot execute command: {exc}\n'
         log = DB / 'evidence' / (proof_id + '.log')
         log.parent.mkdir(parents=True, exist_ok=True)
-        header = json.dumps({'case': case['case_id'], 'command': command, 'ran_at': now(),
-                             'exit_code': status}, ensure_ascii=False)
+        header = json.dumps({'case': case['case_id'], 'command': command, 'cwd': str(Path.cwd()),
+                             'ran_at': now(), 'exit_code': status}, ensure_ascii=False)
         log.write_text(header + '\n' + output, encoding='utf-8')
         digest = hashlib.sha256(log.read_bytes()).hexdigest()
         add(case, 'evidence', 'EV', {'label': args.label, 'command': command, 'exit_code': status,

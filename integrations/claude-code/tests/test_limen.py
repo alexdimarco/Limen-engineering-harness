@@ -76,12 +76,17 @@ class LimenTests(unittest.TestCase):
         self.cli('correct', '--finding', 'wrong', '--change', 'fixed', '--evidence', 'EV-001', ok=False)
 
     def test_hook_asks_when_commit_has_no_case(self):
+        # 0.2.0: the tool is in the project, so this tests a missing case, not a missing tool.
+        (self.cwd / 'tools').mkdir()
+        (self.cwd / 'tools' / 'limen.py').write_bytes(SCRIPT.read_bytes())
         payload = {'tool_name': 'Bash', 'tool_input': {'command': 'git commit -m test'}}
         res = subprocess.run([sys.executable, str(HOOK)], input=json.dumps(payload),
                              capture_output=True, text=True, cwd=self.cwd,
                              env={**os.environ, 'CLAUDE_PROJECT_DIR': str(self.cwd)}, timeout=15)
         self.assertEqual(res.returncode, 0, res.stderr)
-        self.assertEqual(json.loads(res.stdout)['hookSpecificOutput']['permissionDecision'], 'ask')
+        out = json.loads(res.stdout)['hookSpecificOutput']
+        self.assertEqual(out['permissionDecision'], 'ask')
+        self.assertIn('No active Limen case', out['permissionDecisionReason'])
 
 
 if __name__ == '__main__':
