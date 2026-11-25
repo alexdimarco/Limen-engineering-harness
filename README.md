@@ -1,54 +1,118 @@
-# Limen Engineering Harness — source repository starter
+# Limen Engineering Harness
 
-**Package prepared 2026-11-24.** This is a local Git repository *import package*, not a repository already installed or committed on your Mac. It contains three genuine previously created skill implementations and the two existing Limen research papers. Nothing in the ZIP installs plugins, modifies a live project, enables production releases, or grants an AI additional access.
+**The Limen method applied to AI-assisted engineering.** By Alex DiMarco. Version 0.1, November 2026.
 
-## Contents
+This is a way of working with an AI assistant on software and infrastructure changes. Requirements are written so
+they can be tested, alternatives and criticism are recorded, tests are actually run, corrections are kept, and every
+consequential decision has a named human owner. This repository packages that way of working for Claude Code, ChatGPT
+and Microsoft 365 Copilot. It also holds the working paper that argues for it and a plan for building it out.
 
-| Path | Content | Source status |
-|---|---|---|
-| `integrations/claude-code/` | Claude Code project instructions, `/limen` skill, Python evidence case recorder, advisory tool hook, six unit tests | Previously created starter, source preserved |
-| `integrations/chatgpt/` | ChatGPT Limen Engineering skill, metadata, references and original `skill.zip` | Previously created ChatGPT skill, source preserved |
-| `integrations/m365-copilot/` | Microsoft 365 Copilot personal Limen skill, references and original `skill.zip` | Recovered from the earlier Nov 24 Copilot skill artifact, source preserved |
-| `docs/` | Working research paper v0.1, implementation plan v0.1, Microsoft 365 Copilot installation/user guide PDF, Codex import instructions | Previously created docs, source preserved |
-| `AGENTS.md` | Modest project guidance for Codex while maintaining this repository | New repository scaffolding |
-| `SOURCE_MANIFEST.sha256` | Content digests of the files in this ZIP before packaging | New integrity reference, not an authenticity guarantee |
+**Status: a working draft.** Whether this produces better engineering is a hypothesis, not a finding. The working
+paper says how it could be tested.
 
-## Install into the local Git repository (Codex)
-
-1. Download this ZIP onto your Mac and extract it to a temporary location.
-2. Open **Codex / Local** and choose `/Users/alex.dimarco/repositories/Limen-engineering-harness` as the project folder.
-3. Give Codex `docs/CODEX_IMPORT_INSTRUCTIONS.md`, or copy those instructions into the conversation.
-4. Inspect any existing files, especially the Copilot prompt or skill that is already in the ChatGPT Project or the local directory. **Do not overwrite it automatically.** Compare the archived Copilot skill in this ZIP against any local/current version and preserve both when different.
-5. Ask Codex to copy/merge the integrations and `docs/` into the local repository, run the tests, initialize Git (if needed), and make a local commit. There must be no remote and no push.
-
-You can also extract this package directly as a new repository if the destination is empty. Be careful not to nest `Limen-engineering-harness/Limen-engineering-harness`.
-
-## Validate this package
-
-From this repository root:
-
-```sh
-python3 -m unittest discover -s integrations/claude-code/tests -v
-python3 integrations/claude-code/tools/limen.py --help
-```
-
-The Copilot and ChatGPT ZIPs are installation packages. Their reasoning instructions are **not** security or production deployment gates. Read each integration's instructions for how to install it into its own platform. Claude hooks are advisory; actual access controls, tests, protected CI and human approval must remain independent of the LLM.
-
-## Use in Claude Code as a plugin
-
-`plugins/limen-engineering/` packages the `/limen` skill and the `limen.py` case recorder as a Claude Code plugin, and this repository is its marketplace (`.claude-plugin/marketplace.json`):
+## Use it in Claude Code
 
 ```sh
 claude plugin marketplace add alexdimarco/Limen-engineering-harness
 claude plugin install limen-engineering@limen-engineering-harness
 ```
 
-In a session, type `/limen-engineering:limen` and the task. The skill runs only when typed. The plugin has no hook; the advisory commit check stays in the copy-in starter under `integrations/claude-code/`. See `plugins/limen-engineering/README.md`.
+Then, in a session, type the skill and the task:
 
-## Evidence and scope
+```text
+/limen-engineering:limen add input validation to the CSV import
+```
 
-The Limen method follows **Experience → Model → Imagine → Branch → Simulate → Integrate → Act → Encounter → Update**, with Yes-And as Receive → Build → Judge. Model-generated descriptions and cross-model agreement are not independent verification. The research papers make a hypothesis about improved engineering quality, not a proven claim of reduced defects.
+(`/limen` also works when no other command has that name.) The skill takes the work through the nine moments, picks a
+risk tier, and keeps a case record in `.limen/` in your repository. The record holds the requirements, alternatives,
+criticism, the decision, the output of every check it ran (with a SHA-256 digest), what was observed, and the
+corrections. Its `check` command says whether the record meets the minimum for its tier.
 
-**Privacy:** Do not put private keys, client-sensitive logs or credentials into the repository. Source package contents were inspected for structure and validated as described; this is not a penetration test or a review of your Mac's existing files.
+- It runs only when you type it, and it adds no hooks.
+- It needs Python 3 and nothing else: standard library only, tested with 3.9.6.
+- Add `.limen/` to your `.gitignore` unless you mean to keep the records.
+- To stay on one release, add the marketplace at its tag:
+  `claude plugin marketplace add alexdimarco/Limen-engineering-harness#limen-engineering-v0.1.0`.
 
-**Licensing:** No licence is assumed or asserted by this starter package. Review ownership and licensing before distributing it publicly.
+## What is here
+
+| Folder | What it is | How to use it |
+|---|---|---|
+| `plugins/limen-engineering/` | The Claude Code plugin: the `/limen` skill and the `limen.py` case recorder | Install as above |
+| `integrations/claude-code/` | The copy-in starter: the same tool and skill, a `CLAUDE.md`, an advisory commit hook, the tests | Copy into one repository; see its README |
+| `integrations/chatgpt/` | The ChatGPT skill (`skill.zip` and its unpacked text) | Upload the zip through ChatGPT's skill settings |
+| `integrations/m365-copilot/` | The Microsoft 365 Copilot personal skill | Follow the installation and user guide in `docs/` |
+| `docs/` | The working paper v0.1, the implementation plan v0.1, the Copilot guide (PDF), notes on the first import | Read |
+
+## The method in brief
+
+- **Nine moments:** Experience → Model → Imagine → Branch → Simulate → Integrate → Act → Encounter → Update. They
+  loop back, and the objective itself can be revised or abandoned.
+- **Yes-And is Receive → Build → Judge:** take a contribution seriously and build on it, then judge it. It is never
+  automatic agreement.
+- **Every claim is marked** observed, inferred, proposed, unverified or verified. A model's claim is not evidence, and
+  neither is another model agreeing with it.
+- **Six commitments:** Fidelity, Humility, Correction, Engagement, Care, Charity.
+- **Risk tiers** set how much evidence a change needs:
+
+| Tier | Examples | Minimum record | Still needed outside the tool |
+|---|---|---|---|
+| 0 | Documentation, naming | The objective | Review as appropriate |
+| 1 | An ordinary feature or refactor | A requirement, a decision, a passing check the tool ran, an observation | Code review, CI |
+| 2 | Sign-in, security, networking, data migration | Tier 1, plus assumptions, two alternatives, criticism answered, an adverse scenario, a named risk owner | Human approval, negative tests, protected CI, threat-model review |
+| 3 | Safety, money transfers, irreversible or production security changes | The tool never accepts tier 3 | Independent specialists and a protected release process |
+
+The method comes from [Conversations with Limen](https://conversationswithlimen.ca/), a public record of a long
+written collaboration between Alex DiMarco and several language models. The working paper is also published there as
+[From Better Answers to Better Engineering](https://conversationswithlimen.ca/better-engineering.html).
+
+## What it is not
+
+- **Not a security control.** The starter's hook is an advisory prompt before `git commit`, `git push` and a few
+  deployment commands. It is easy to get around. The real gates (branch protection, required CI checks, approvals)
+  have to live outside the model.
+- **Not tamper-proof evidence.** The model that writes the records can also edit them. The digests catch accidental
+  changes, not deliberate ones, and the records are not audit evidence.
+- **Not an approval.** "READY FOR REVIEW" means the record is complete for its tier. It does not mean the change is
+  safe to release.
+
+## Known issues in 0.1
+
+These are in the starter's commit hook, which is why the plugin ships without it:
+
+- the reason it shows is empty when a case is not ready;
+- its unit test passes whether or not the tool is there;
+- the tool keeps records in the folder it runs from, while the hook checks the project root;
+- `git -C <folder> commit` is not caught.
+
+## Run the tests
+
+```sh
+python3 -m unittest discover -s integrations/claude-code/tests -v
+```
+
+There are ten tests, covering:
+
+- the case recorder;
+- the starter's hook;
+- the plugin's packaging, including a check that the plugin's `limen.py` stays identical to the starter's.
+
+## How this was made
+
+Parts were drafted with AI assistants at Alex DiMarco's request:
+
+- ChatGPT and Microsoft 365 Copilot (each document's provenance line says which);
+- Claude (the Claude Code plugin packaging and this page).
+
+`SOURCE_MANIFEST.sha256` holds the digests of the original package as it was imported on 24 November 2026, and
+`docs/CODEX_IMPORT_INSTRUCTIONS.md` describes that import.
+
+## Licence
+
+- **MIT:** the code (the Claude Code plugin and starter, the marketplace file, `.gitignore`).
+- **CC BY 4.0:** everything else.
+
+Details are in [LICENSING.md](LICENSING.md). Credit the writing as "Limen Engineering Harness by Alex DiMarco, CC BY 4.0,
+https://github.com/alexdimarco/Limen-engineering-harness".
+
+Corrections and criticism are welcome as issues.
