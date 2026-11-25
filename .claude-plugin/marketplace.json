@@ -1,0 +1,15 @@
+{
+  "name": "limen-engineering-harness",
+  "description": "The Limen Engineering Harness: the Limen method applied to AI-assisted engineering.",
+  "owner": {
+    "name": "Alex DiMarco",
+    "url": "https://github.com/alexdimarco"
+  },
+  "plugins": [
+    {
+      "name": "limen-engineering",
+      "source": "./plugins/limen-engineering",
+      "description": "The /limen skill (nine moments, risk tiers) and a local case recorder for decisions and tool-run test evidence."
+    }
+  ]
+}

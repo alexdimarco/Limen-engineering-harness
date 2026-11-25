@@ -34,6 +34,17 @@ python3 integrations/claude-code/tools/limen.py --help
 
 The Copilot and ChatGPT ZIPs are installation packages. Their reasoning instructions are **not** security or production deployment gates. Read each integration's instructions for how to install it into its own platform. Claude hooks are advisory; actual access controls, tests, protected CI and human approval must remain independent of the LLM.
 
+## Use in Claude Code as a plugin
+
+`plugins/limen-engineering/` packages the `/limen` skill and the `limen.py` case recorder as a Claude Code plugin, and this repository is its marketplace (`.claude-plugin/marketplace.json`):
+
+```sh
+claude plugin marketplace add alexdimarco/Limen-engineering-harness
+claude plugin install limen-engineering@limen-engineering-harness
+```
+
+In a session, type `/limen-engineering:limen` and the task. The skill runs only when typed. The plugin has no hook; the advisory commit check stays in the copy-in starter under `integrations/claude-code/`. See `plugins/limen-engineering/README.md`.
+
 ## Evidence and scope
 
 The Limen method follows **Experience → Model → Imagine → Branch → Simulate → Integrate → Act → Encounter → Update**, with Yes-And as Receive → Build → Judge. Model-generated descriptions and cross-model agreement are not independent verification. The research papers make a hypothesis about improved engineering quality, not a proven claim of reduced defects.
